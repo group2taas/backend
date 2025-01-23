@@ -1,5 +1,8 @@
 # Backend
 
+You need to have mongo installed (I use mongoDB Compass for the GUI)
+Before running below, go to your terminal and start mongo (command below), then open compass and connect
+
 ## Setting Up
 
 1. Clone the repo
@@ -17,8 +20,18 @@
 3. Install
    `pip install -r requirements.txt`
 
-4. Apply migrations
+4. Create migrations
+   `python manage.py makemigrations`
+
+5. Apply migrations
    `python manage.py migrate`
 
-5. Start
+6. Start
    `python manage.py runserver`
+
+
+
+## Useful commands
+`deactivate` to stop the virtual env
+`mongod --dbpath /usr/local/var/mongodb` to start mongo terminal (depends on where you place)
+I created a database with name "users" 

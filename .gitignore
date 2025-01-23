@@ -171,3 +171,6 @@ cython_debug/
 .pypirc
 
 package-lock.json
+firebase_config.json
+**/migrations/*.py
+!**/migrations/__init__.py
