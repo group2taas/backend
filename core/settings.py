@@ -16,7 +16,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-DB_PASSWORD = os.getenv("DB_PASSWORD")
+MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -117,11 +117,14 @@ DATABASES = {
         "ENGINE": "djongo",
         "NAME": "users",  # Replace with your MongoDB database name
         "CLIENT": {
-            "host": f"mongodb+srv://capstonetaas:{DB_PASSWORD}@taas.qmkdn.mongodb.net/?retryWrites=true&w=majority&appName=taas",
+            "host": f"mongodb+srv://capstonetaas:{MONGODB_PASSWORD}@taas.qmkdn.mongodb.net/?retryWrites=true&w=majority&appName=taas",
+            "ssl": True,
         },
     }
 }
 
+REDIS_HOST = os.getenv("REDIS_URL")
+ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_URL")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

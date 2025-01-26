@@ -11,3 +11,12 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def to_dict(self):
+        return {
+            "uid": self.uid,
+            "name": self.name,
+            "email": self.email,
+            "phone": self.phone,
+            "company_name": self.company_name,
+        }
