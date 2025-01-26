@@ -13,12 +13,11 @@ from users.models import UserProfile
 
 class AllTicketsView(ListAPIView):
     authentication_classes = [FirebaseAuthentication]
-    permission_classes = [IsAuthenticated]
     serializer_class = TicketSerializer
 
     # TODO: include filtering and ordering
     def get_queryset(self):
-        uid = self.request.user.id
+        uid = self.request.user.uid
         user = get_object_or_404(UserProfile, pk=uid)
 
         return Ticket.objects.all().filter(user=user)
@@ -26,12 +25,11 @@ class AllTicketsView(ListAPIView):
 
 class TicketCreateView(APIView):
     authentication_classes = [FirebaseAuthentication]
-    permission_classes = [IsAuthenticated]
 
     def get(self, request, ticket_id):
-        uid = request.user.id
+        uid = request.user.uid
         ticket = get_object_or_404(Ticket, pk=ticket_id)
-        if ticket.user.id != uid:
+        if ticket.user.uid != uid:
             return Response(
                 {"error": "Ticket does not belong to user"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -40,7 +38,7 @@ class TicketCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        request.data["user"] = request.user.id
+        request.data["user"] = request.user.uid
         serializer = TicketSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

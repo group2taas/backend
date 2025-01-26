@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, auth
 from rest_framework import authentication
 from users.models import UserProfile
+from django.shortcuts import get_object_or_404
 
 from .exceptions import NoAuthToken, InvalidAuthToken, FirebaseError
 
@@ -26,9 +27,7 @@ class FirebaseAuthentication(authentication.BaseAuthentication):
             uid = decoded_token.get("uid")
         except Exception:
             raise FirebaseError
-        try:
-            user = UserProfile.objects.get(pk=uid)
-        except:
-            raise authentication.AuthenticationFailed("No such user")
+
+        user = get_object_or_404(UserProfile, pk=uid)
 
         return (user, None)
