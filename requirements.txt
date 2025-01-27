@@ -46,3 +46,6 @@ sqlparse==0.2.4
 typing_extensions==4.12.2
 uritemplate==4.1.1
 urllib3==2.3.0
+setuptools==75.8.0
+elastic-transport==8.17.0
+elasticsearch==8.17.1
