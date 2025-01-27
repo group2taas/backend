@@ -10,13 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import logging
+import os
+import sys 
 from datetime import timedelta
 from pathlib import Path
-import os
 from dotenv import load_dotenv
+from loguru import logger
 
 load_dotenv()
 MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
+REDIS_HOST = os.getenv("REDIS_URL")
+ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_URL")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,13 +52,17 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "users",
     "tickets",
+    "corsheaders"
 ]
 
 REST_FRAMEWORK = {
-    # "DEFAULT_AUTHENTICATION_CLASSES": (
-    #     "rest_framework_simplejwt.authentication.JWTAuthentication",
-    # ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
 }
+
+AUTH_USER_MODEL = 'users.UserProfile'
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
@@ -64,17 +73,19 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_HTTP_ONLY": True,
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Lax",
+    'USER_ID_CLAIM': 'uid',        
+    'USER_ID_FIELD': 'uid', 
 }
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -123,9 +134,6 @@ DATABASES = {
     }
 }
 
-REDIS_HOST = os.getenv("REDIS_URL")
-ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_URL")
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -171,3 +179,35 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 SESSION_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SECURE = False
+
+logger.remove()
+
+logger.add(
+    sys.stdout,
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+    level="INFO",
+    backtrace=True,
+    diagnose=True,  
+)
+
+class LoguruHandler(logging.Handler):
+    def emit(self, record):
+        log_entry = self.format(record)
+        logger.log(record.levelname, log_entry)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "loguru": {
+            "()": LoguruHandler,  
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["loguru"],
+            "level": "INFO",  
+            "propagate": True,
+        },
+    },
+}

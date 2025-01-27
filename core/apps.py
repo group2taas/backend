@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 import threading
-from core.logging import logger
 from django.db.models.signals import post_migrate
 from services.sync_mongodb_to_es import SyncMongoToElasticsearch
 
@@ -19,14 +18,13 @@ class CoreConfig(AppConfig):
         sync_service = SyncMongoToElasticsearch(index_name=index_name)
 
         def start_sync():
-            logger.info("Starting initial sync to Elasticsearch.")
             try:
                 while not self.stop_event.is_set():  
                     sync_service.sync_all_documents()  # Initial
                     # sync_service.start_change_stream()  # RealTime
                     break
             except Exception as e:
-                logger.error(f"Error during sync service: {e}")
+                return
         
         if self.sync_thread is None or not self.sync_thread.is_alive():
             self.sync_thread = threading.Thread(target=start_sync, daemon=True, name="SyncThread")
