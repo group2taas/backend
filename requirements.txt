@@ -49,3 +49,10 @@ urllib3==2.3.0
 setuptools==75.8.0
 elastic-transport==8.17.0
 elasticsearch==8.17.1
+kafka-python==2.0.2
+langchain==0.3.16
+langchain-community==0.3.16
+langchain-core==0.3.32
+langchain-huggingface==0.1.2
+langchain-text-splitters==0.3.5
+huggingface-hub==0.27.1

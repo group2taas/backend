@@ -23,6 +23,11 @@ MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
 REDIS_HOST = os.getenv("REDIS_URL")
 ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_URL")
 
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
+KAFKA_TECHNICAL_PRE_SALES_TOPIC = os.getenv("KAFKA_TECHNICAL_PRE_SALES_TOPIC")
+KAFKA_SALES_TOPIC = os.getenv("KAFKA_SALES_TOPIC")
+KAFKA_GROUP_ID = os.getenv("KAFKA_GROUP_ID")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -52,6 +57,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "users",
     "tickets",
+    "agents.technical_pre_sales",
     "corsheaders"
 ]
 
