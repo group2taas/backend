@@ -17,7 +17,7 @@ def delivery_report(err, msg):
         print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
 
 def send_to_sales(scoping_data):
-    topic_name = settings.KAFKA_SALES_TOPIC
+    topic_name = settings.KAFKA_TECHNICAL_PRE_SALES_TOPIC
     producer.produce(
         topic=topic_name,
         value=json.dumps(scoping_data),

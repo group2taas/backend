@@ -28,7 +28,7 @@ class TechnicalPreSalesAgent:
         send_to_sales({
             "client_id": str(scoping_data.client_id),
             "analysis_result": scoping_data.analysis_result,
-            "scoping_id": scoping_data.id
+            "scoping_data_id": scoping_data.id
         })
 
         scoping_data.analysis_result = self._parse_output(raw_output)
