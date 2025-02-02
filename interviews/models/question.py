@@ -56,7 +56,7 @@ class Question(models.Model):
 
     def __str__(self):
         msg = f"Question '{self.text}' "
-        if self.required:
+        if self.is_required:
             msg += "(*) "
         msg += f"{self.get_choices()}"
         return msg

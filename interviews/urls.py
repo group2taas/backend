@@ -8,7 +8,7 @@ router = DefaultRouter()
 # Define urlpatterns
 urlpatterns = [
     path("<int:interview_id>", InterviewDetailView.as_view(), name="interview-detail"),
-    path("", InterviewDetailView.as_view(), name="interview-create"),
+    path("create", InterviewDetailView.as_view(), name="interview-create"),
     # below exposes the endpoints to interact with the Question model (for development purposes only)
     path(
         "question/<int:question_id>",

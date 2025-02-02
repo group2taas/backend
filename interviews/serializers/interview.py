@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from interviews.models import Interview, Answer
+from tickets.models import Ticket
 from .answer import AnswerSerializer
 
 from loguru import logger
@@ -10,14 +11,26 @@ class InterviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Interview
-        fields = ["id", "ticket", "answers", "created_at", "updated_at"]
+        fields = ["id", "ticket", "created_at", "updated_at", "answers"]
+
+    def validate(self, data):
+        """Ensure only one interview for one ticket"""
+        if Ticket.objects.filter(pk=data["ticket"].id).exists():
+            raise serializers.ValidationError(
+                "Only one interview sheet is allowed per ticket."
+            )
+        return data
 
     def create(self, validated_data):
+        logger.info(f"Receiving data for InterviewSerializer: {validated_data}")
         answers_data = validated_data.pop("answers")
         interview = Interview.objects.create(**validated_data)
-        Answer.objects.bulk_create(
-            [Answer(interview=interview, **answer_data) for answer_data in answers_data]
-        )
+        for answer_data in answers_data:
+            logger.info(f"Processing answer: {answer_data}")
+            Answer.objects.create(interview=interview, **answer_data)
+        # Answer.objects.bulk_create(
+        #     [Answer(interview=interview, **answer_data) for answer_data in answers_data]
+        # )
         return interview
 
     def update(self, instance, validated_data):
@@ -26,8 +39,11 @@ class InterviewSerializer(serializers.ModelSerializer):
         instance.save()
 
         # delete old answers and recreate new ones
+        # TODO: ideally loop through and update / delete answer individually
+        # so that `updated_at` and `id` in answer will be reflected correctly
         instance.answers.all().delete()
         Answer.objects.bulk_create(
             [Answer(interview=instance, **answer_data) for answer_data in answers_data]
         )
+
         return instance

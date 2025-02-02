@@ -24,8 +24,8 @@ def _check_user_permission(request, interview):
 class InterviewDetailView(APIView):
     permission_classes = [AllowAny] if settings.DEBUG else [IsAuthenticated]
 
-    def get(self, request, response_id):
-        interview = get_object_or_404(Interview, pk=response_id)
+    def get(self, request, interview_id):
+        interview = get_object_or_404(Interview, pk=interview_id)
         _check_user_permission(request, interview)
         serializer = InterviewSerializer(interview)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -37,8 +37,8 @@ class InterviewDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, response_id):
-        interview = get_object_or_404(Interview, pk=response_id)
+    def put(self, request, interview_id):
+        interview = get_object_or_404(Interview, pk=interview_id)
         _check_user_permission(request, interview)
         serializer = InterviewSerializer(interview, data=request.data)
         if serializer.is_valid():

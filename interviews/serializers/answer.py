@@ -4,7 +4,7 @@ from interviews.models import Answer, Question
 from loguru import logger
 
 
-class AnswerSerializer(serializers.Serializer):
+class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
@@ -24,11 +24,11 @@ class AnswerSerializer(serializers.Serializer):
                 raise serializers.ValidationError(msg)
 
     def validate(self, data):
-        logger.info(f"Data received for validation: {data}")
+        logger.info(f"Validating data for AnswerSerializer: {data}")
         body = data.get("body", "")
-        question_id = data.get("question")
-        logger.info(f"Getting question with {question_id}")
-        qtype = Question.objects.get(pk=question_id).type
+        question = data.get("question")
+        logger.info(f"Getting question with {question.pk}")
+        qtype = question.type
 
         if qtype == Question.INTEGER and body and body != "":
             try:
