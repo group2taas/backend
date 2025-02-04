@@ -48,3 +48,18 @@ class TicketCreateView(APIView):
             )
         ticket.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class TicketDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, ticket_id):
+        ticket = get_object_or_404(Ticket, pk=ticket_id)
+        
+        if ticket.user.pk != request.user.pk:
+            return Response(
+                {"error": "Ticket does not belong to user"},
+                status=status.HTTP_403_FORBIDDEN, 
+            )
+        
+        serializer = TicketSerializer(ticket)
+        return Response(serializer.data, status=status.HTTP_200_OK)
