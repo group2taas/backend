@@ -2,19 +2,20 @@ from confluent_kafka import Consumer
 import json
 import os
 from django.conf import settings
-from .services import TechnicalPreSalesAgent
+from .services import AnalysisAgent
 
-KAFKA_BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
-TOPIC_NAME = settings.KAFKA_TECHNICAL_PRE_SALES_TOPIC
+BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
+TOPIC_NAME = settings.KAFKA_ANALYSIS_TOPIC
+GROUP_ID = settings.KAFKA_ANALYSIS_GROUP_ID
 
-def start_technical_pre_sales_consumer():
+def start_analysis_consumer():
     consumer_config = {
-        'bootstrap.servers': settings.KAFKA_BOOTSTRAP_SERVERS,
-        'group.id': settings.KAFKA_GROUP_ID,
+        'bootstrap.servers': BOOTSTRAP_SERVERS,
+        'group.id': GROUP_ID,
         'auto.offset.reset': 'earliest'  
     }
     consumer = Consumer(consumer_config)
-    topic_name = settings.KAFKA_TECHNICAL_PRE_SALES_TOPIC
+    topic_name = TOPIC_NAME
 
     consumer.subscribe([topic_name])
 
@@ -28,7 +29,7 @@ def start_technical_pre_sales_consumer():
 
             scoping_data = json.loads(msg.value().decode('utf-8'))
 
-            agent = TechnicalPreSalesAgent()
+            agent = AnalysisAgent()
             agent.analyze_client_data(scoping_data["scoping_data_id"])
     except KeyboardInterrupt:
         print("Consumer interrupted by user")

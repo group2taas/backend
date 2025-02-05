@@ -3,9 +3,9 @@ from bson import ObjectId
 from agents.base.model_handler import AIModelHandler
 from .models import ClientScopingData
 from .prompts import TECHNICAL_ANALYSIS_PROMPT
-from .kafka_producer import send_to_sales
+from .kafka_producer import send_to_testing
 
-class TechnicalPreSalesAgent:
+class AnalysisAgent:
     def __init__(self):
         self.model_handler = AIModelHandler()
     
@@ -25,14 +25,15 @@ class TechnicalPreSalesAgent:
         raw_output = self.model_handler.query_model(prompt, max_new_tokens=256)
         print("Raw model output:", raw_output)
 
-        send_to_sales({
-            "client_id": str(scoping_data.client_id),
-            "analysis_result": scoping_data.analysis_result,
-            "scoping_data_id": scoping_data.id
-        })
-
         scoping_data.analysis_result = self._parse_output(raw_output)
         scoping_data.save()
+
+        send_to_testing({
+            # "client_id": str(scoping_data.client_id),
+            # "analysis_result": scoping_data.analysis_result,
+            "scoping_data_id": scoping_data.id
+        })
+        
         return scoping_data
 
     def _parse_output(self, raw_output):

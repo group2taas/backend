@@ -3,10 +3,11 @@ import json
 import os
 from django.conf import settings
 
-KAFKA_BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
+BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
+TOPIC_NAME = settings.KAFKA_TESTING_TOPIC
 
 producer_config = {
-    'bootstrap.servers': KAFKA_BOOTSTRAP_SERVERS
+    'bootstrap.servers': BOOTSTRAP_SERVERS
 }
 producer = Producer(producer_config)
 
@@ -16,8 +17,8 @@ def delivery_report(err, msg):
     else:
         print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
 
-def send_to_sales(scoping_data):
-    topic_name = settings.KAFKA_TECHNICAL_PRE_SALES_TOPIC
+def send_to_testing(scoping_data):
+    topic_name = TOPIC_NAME
     producer.produce(
         topic=topic_name,
         value=json.dumps(scoping_data),
