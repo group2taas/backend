@@ -37,10 +37,15 @@ Before running below, go to your terminal and start mongo (command below), then 
 4. Create migrations
    `python manage.py makemigrations`
 
-5. Apply migrations
+5. Create Superuser
+   `python manage.py createsuperuser`
+   uid just put admin, password just password
+   admin page is at localhost:8000/admin
+
+6. Apply migrations
    `python manage.py migrate`
 
-6. Start
+7. Start
    `python manage.py runserver`
 
 ## Useful commands
