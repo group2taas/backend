@@ -1,8 +1,10 @@
+from .services import TestingAgent
 from confluent_kafka import Consumer
 import json
 import os
 from django.conf import settings
 from loguru import logger
+
 
 
 BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
@@ -28,6 +30,9 @@ def start_testing_consumer():
 
             assessment_results = json.loads(msg.value().decode('utf-8'))
             logger.info(f"Processing results for {assessment_results['scoping_data_id']}")
+
+            ##TO ADD LOGIC TO CALL SELENIUM BACKEND
+            agent = TestingAgent()
             
     except KeyboardInterrupt:
         logger.error("Consumer interrupted by user")

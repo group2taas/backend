@@ -4,10 +4,10 @@ from agents.base.model_handler import AIModelHandler
 from agents.analysis_agent.models import ClientScopingData
 from loguru import logger
 
-
-class SalesAgent:
+#TBD
+class TestingAgent:
     def __init__(self):
-        #TBD 
+        
         pass
     #     self.model_handler = AIModelHandler()
 

@@ -19,7 +19,8 @@ def delivery_report(err, msg):
     else:
         logger.info(f"Message delivered to {msg.topic()} [{msg.partition()}]")
 
-def send_to_product_manager(report):
+#TBD
+def send_to_placeholder(report):
 
     topic_name = TOPIC_NAME
 
