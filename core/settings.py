@@ -24,9 +24,15 @@ REDIS_HOST = os.getenv("REDIS_URL")
 ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_URL")
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
-KAFKA_TECHNICAL_PRE_SALES_TOPIC = os.getenv("KAFKA_TECHNICAL_PRE_SALES_TOPIC")
-KAFKA_SALES_TOPIC = os.getenv("KAFKA_SALES_TOPIC")
-KAFKA_GROUP_ID = os.getenv("KAFKA_GROUP_ID")
+
+KAFKA_ANALYSIS_TOPIC = os.getenv("KAFKA_ANALYSIS_TOPIC")
+KAFKA_ANALYSIS_GROUP_ID = os.getenv("KAFKA_ANALYSIS_GROUP_ID")
+
+KAFKA_TESTING_TOPIC = os.getenv("KAFKA_TESTING_TOPIC")
+KAFKA_TESTING_GROUP_ID = os.getenv("KAFKA_TESTING_GROUP_ID")
+
+KAFKA_PLACEHOLDER_TOPIC = os.getenv("KAFKA_PLACEHOLDER_TOPIC")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -198,12 +204,16 @@ logger.add(
 
 class LoguruHandler(logging.Handler):
     def emit(self, record):
-        log_entry = self.format(record)
-        logger.log(record.levelname, log_entry)
+        try:
+            level = logger.level(record.levelname).name
+        except KeyError:
+            level = record.levelno  
+
+        logger.log(level, record.getMessage())
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "handlers": {
         "loguru": {
             "()": LoguruHandler,  
