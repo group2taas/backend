@@ -28,6 +28,7 @@ class OWASPModelHandler:
 
     def get_ai_model(self):
         return ChatOpenAI(
+            model="gpt-4o",
             api_key=OPENAI_API_KEY,
             temperature=1,
             max_completion_tokens=None,
