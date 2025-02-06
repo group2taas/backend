@@ -34,17 +34,6 @@ KAFKA_TESTING_GROUP_ID = os.getenv("KAFKA_TESTING_GROUP_ID")
 KAFKA_PLACEHOLDER_TOPIC = os.getenv("KAFKA_PLACEHOLDER_TOPIC")
 
 
-# KAFKA_TECHNICAL_PRE_SALES_TOPIC = os.getenv("KAFKA_TECHNICAL_PRE_SALES_TOPIC")
-# KAFKA_GROUP_ID = os.getenv("KAFKA_GROUP_ID")
-
-#TBD- register in env
-# KAFKA_SALES_TOPIC = os.getenv("KAFKA_SALES_TOPIC")
-# SALES_TO_PM_GROUP_ID = os.getenv("SALES_TO_PM_GROUP_ID")
-# KAFKA_PROJECT_MANAGER_TOPIC = os.getenv("KAFKA_PROJECT_MANAGER_TOPIC")
-# PROJECT_MANAGER_GROUP_ID = os.getenv("PROJECT_MANAGER_GROUP_ID")
-
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -208,7 +197,7 @@ logger.remove()
 logger.add(
     sys.stdout,
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
-    level="DEBUG",
+    level="INFO",
     backtrace=True,
     diagnose=True,  
 )
