@@ -2,8 +2,9 @@ import json
 from bson import ObjectId
 from agents.base.model_handler import AIModelHandler
 from .models import ClientScopingData
-from .prompts import TECHNICAL_ANALYSIS_PROMPT
+from .prompts import ANALYSIS_PROMPT
 from .kafka_producer import send_to_testing
+from loguru import logger
 
 class AnalysisAgent:
     def __init__(self):
@@ -15,7 +16,7 @@ class AnalysisAgent:
 
         scoping_data = ClientScopingData.objects.get(id=scoping_data_id)
         
-        prompt = TECHNICAL_ANALYSIS_PROMPT.format(
+        prompt = ANALYSIS_PROMPT.format(
             tech_stack=json.dumps(scoping_data.tech_stack),
             security_concerns=scoping_data.security_concerns,
             client_type=scoping_data.get_client_type_display()
@@ -29,8 +30,6 @@ class AnalysisAgent:
         scoping_data.save()
 
         send_to_testing({
-            # "client_id": str(scoping_data.client_id),
-            # "analysis_result": scoping_data.analysis_result,
             "scoping_data_id": scoping_data.id
         })
         
@@ -40,4 +39,5 @@ class AnalysisAgent:
         try:
             return json.loads(raw_output.strip().replace('```json', '').replace('```', ''))
         except json.JSONDecodeError:
+            logger.warning("Failed to parse raw data from model.")
             return {"error": "Failed to parse model output"}

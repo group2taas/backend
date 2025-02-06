@@ -32,7 +32,7 @@ def start_testing_consumer():
             logger.info(f"Processing results for {assessment_results['scoping_data_id']}")
 
             ##TO ADD LOGIC TO CALL SELENIUM BACKEND
-            agent = TestingAgent()
+            
             
     except KeyboardInterrupt:
         logger.error("Consumer interrupted by user")

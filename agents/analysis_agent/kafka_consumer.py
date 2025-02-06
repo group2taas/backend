@@ -3,6 +3,7 @@ import json
 import os
 from django.conf import settings
 from .services import AnalysisAgent
+from loguru import logger
 
 BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
 TOPIC_NAME = settings.KAFKA_ANALYSIS_TOPIC
@@ -32,6 +33,6 @@ def start_analysis_consumer():
             agent = AnalysisAgent()
             agent.analyze_client_data(scoping_data["scoping_data_id"])
     except KeyboardInterrupt:
-        print("Consumer interrupted by user")
+        logger.error("Consumer interrupted by user")
     finally:
         consumer.close()
