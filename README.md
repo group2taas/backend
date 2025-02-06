@@ -48,6 +48,9 @@ Before running below, go to your terminal and start mongo (command below), then 
 7. Start
    `python manage.py runserver`
 
+8. Daphne (Websocket server)
+   `daphne -b 0.0.0.0 -p 8000 core.asgi:application`
+
 ## Useful commands
 `deactivate` to stop the virtual env
 
@@ -62,3 +65,8 @@ I created a database with name "users"
 2. Look for the PID that your server is running on and kill it.
 `kill -9 <PID>`
 
+1 Terminal for frontend
+1 Terminal for Django backend
+1 Terminal for Daphne backend (Websockets)
+1 Terminal for zookeeper
+1 Terminal for kafka
