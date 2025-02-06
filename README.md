@@ -14,8 +14,7 @@ Before running below, go to your terminal and start mongo (command below), then 
 `zkServer start`
 
 4. Start Kafka Server (default port is localhost:9092)
-`kafka-server-start /usr/local/etc/kafka/server.properties`
-
+`kafka-server-start /usr/local/etc/kafka/server.properties` (/opt/homebrew/etc/kafka/server.properties for macos)
 ## Setting Up
 
 1. Clone the repo
