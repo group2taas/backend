@@ -71,7 +71,7 @@ class FirebaseSignupView(APIView):
 
     def post(self, request):
         id_token = self._extract_token(request)
-        print(id_token)
+        # print(id_token)
         if not id_token:
             return Response(
                 {"error": "Missing token"}, status=status.HTTP_400_BAD_REQUEST
@@ -101,7 +101,7 @@ class FirebaseSignupView(APIView):
                 )
 
             refresh = RefreshToken.for_user(user)
-            print(str(refresh.access_token))
+            # print(str(refresh.access_token))
             return Response(
                 {"access": str(refresh.access_token), "refresh": str(refresh)},
                 status=status.HTTP_201_CREATED,
