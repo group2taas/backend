@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import logging
 import os
-import sys 
+import sys
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -64,8 +64,9 @@ INSTALLED_APPS = [
     "channels",
     "users",
     "tickets",
+    "results",
+    "corsheaders",
     "agents.technical_pre_sales",
-    "corsheaders"
 ]
 
 REST_FRAMEWORK = {
@@ -74,7 +75,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-AUTH_USER_MODEL = 'users.UserProfile'
+AUTH_USER_MODEL = "users.UserProfile"
 
 
 SIMPLE_JWT = {
@@ -86,8 +87,8 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_HTTP_ONLY": True,
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Lax",
-    'USER_ID_CLAIM': 'uid',        
-    'USER_ID_FIELD': 'uid', 
+    "USER_ID_CLAIM": "uid",
+    "USER_ID_FIELD": "uid",
 }
 
 MIDDLEWARE = [
@@ -189,6 +190,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -206,8 +210,9 @@ logger.add(
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
     level="INFO",
     backtrace=True,
-    diagnose=True,  
+    diagnose=True,
 )
+
 
 class LoguruHandler(logging.Handler):
     def emit(self, record):
@@ -218,18 +223,19 @@ class LoguruHandler(logging.Handler):
 
         logger.log(level, record.getMessage())
 
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
     "handlers": {
         "loguru": {
-            "()": LoguruHandler,  
+            "()": LoguruHandler,
         },
     },
     "loggers": {
         "django": {
             "handlers": ["loguru"],
-            "level": "INFO",  
+            "level": "INFO",
             "propagate": True,
         },
     },
