@@ -8,13 +8,11 @@ from .models import Result
 from .serializers import ResultSerializer
 
 from django.http import FileResponse
-from django.conf import settings
-from loguru import logger
 
 
 # TODO: abstract the following into a custom BasePermission class (same for other views)
 def _check_user_permission(request, result):
-    if result.ticket.user.id != request.user.pk:
+    if result.ticket.user.pk != request.user.pk:
         return Response(
             {"error": "Result does not belong to user"},
             status=status.HTTP_401_UNAUTHORIZED,
