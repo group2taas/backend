@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "channels",
     "users",
     "tickets",
+    "interviews",
     "results",
     "corsheaders",
     "agents.technical_pre_sales",
@@ -222,6 +223,7 @@ class LoguruHandler(logging.Handler):
             level = record.levelno  
 
         logger.log(level, record.getMessage())
+
 
 
 LOGGING = {
