@@ -17,6 +17,7 @@ class Ticket(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    details = models.JSONField(default=dict)
 
     def __str__(self):
         return self.title
