@@ -1,4 +1,3 @@
-from core import settings
 from django.shortcuts import render, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,16 +12,15 @@ from .serializers import InterviewSerializer, QuestionSerializer, AnswerSerializ
 
 # TODO: abstract the following into a custom BasePermission class (same for other views)
 def _check_user_permission(request, interview):
-    if not settings.DEBUG:
-        if interview.ticket.user.pk != request.user.pk:
-            return Response(
-                {"error": "Response does not belong to user"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+    if interview.ticket.user.pk != request.user.pk:
+        return Response(
+            {"error": "Response does not belong to user"},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 class InterviewDetailView(APIView):
-    permission_classes = [AllowAny] if settings.DEBUG else [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, interview_id):
         interview = get_object_or_404(Interview, pk=interview_id)
