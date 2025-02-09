@@ -15,7 +15,7 @@ class InterviewSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Ensure only one interview for one ticket"""
-        if Ticket.objects.filter(pk=data["ticket"].id).exists():
+        if Interview.objects.filter(ticket=data["ticket"].id).exists():
             raise serializers.ValidationError(
                 "Only one interview sheet is allowed per ticket."
             )

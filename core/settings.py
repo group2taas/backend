@@ -67,7 +67,8 @@ INSTALLED_APPS = [
     "interviews",
     "results",
     "corsheaders",
-    "agents.technical_pre_sales",
+    "agents.analysis_agent",
+    "agents.testing_agent",
 ]
 
 REST_FRAMEWORK = {
