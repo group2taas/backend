@@ -12,6 +12,7 @@ firebase-admin==6.6.0
 huggingface_hub==0.28.1
 langchain==0.3.17
 loguru==0.7.3
+openai==1.61.1
 pymongo==3.11.4
 python-dotenv==1.0.1
 quixstreams==3.7.0
