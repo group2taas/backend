@@ -1,43 +1,47 @@
 import json
 from bson import ObjectId
 from agents.base.model_handler import AIModelHandler
-from .models import ClientScopingData
+from interviews.models.interview import Interview
 from .prompts import ANALYSIS_PROMPT
 from .kafka_producer import send_to_testing
 from loguru import logger
+import re
 
 class AnalysisAgent:
     def __init__(self):
         self.model_handler = AIModelHandler()
     
-    def analyze_client_data(self, scoping_data_id):
-        if isinstance(scoping_data_id, ObjectId):
-            scoping_data_id = str(scoping_data_id)
-
-        scoping_data = ClientScopingData.objects.get(id=scoping_data_id)
+    def analyze_interview(self, interview_id):
+        interview = Interview.objects.get(id=interview_id)
+        answers_qs = interview.answers.all()
         
-        prompt = ANALYSIS_PROMPT.format(
-            tech_stack=json.dumps(scoping_data.tech_stack),
-            security_concerns=scoping_data.security_concerns,
-            client_type=scoping_data.get_client_type_display()
-        )
+        interview_answers = ""
+        for answer in answers_qs:
+            question_text = getattr(answer.question, "text", str(answer.question))
+            interview_answers += f"Question: {question_text}\nAnswer: {answer.body}\n\n"
+
+        prompt = ANALYSIS_PROMPT.format(interview_answers=interview_answers)
+
 
         print("Prompt being sent to model:", prompt)
         raw_output = self.model_handler.query_model(prompt, max_new_tokens=256)
         print("Raw model output:", raw_output)
 
-        scoping_data.analysis_result = self._parse_output(raw_output)
-        scoping_data.save()
+        parsed_output = self._parse_output(raw_output)
+        interview.save()
 
         send_to_testing({
-            "scoping_data_id": scoping_data.id
+            "interview_id": interview.id,
+            "analysis_result": parsed_output,
         })
         
-        return scoping_data
+        return interview
 
     def _parse_output(self, raw_output):
         try:
-            return json.loads(raw_output.strip().replace('```json', '').replace('```', ''))
-        except json.JSONDecodeError:
-            logger.warning("Failed to parse raw data from model.")
-            return {"error": "Failed to parse model output"}
+            code = re.sub(r"```(?:python)?", "", raw_output, flags=re.IGNORECASE)
+            code = code.replace("```", "").strip()
+            return code
+        except Exception as e:
+            logger.warning("Failed to parse raw data from model: {}", e)
+            return "Error: Failed to parse model output"

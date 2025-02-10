@@ -1,26 +1,13 @@
 from langchain.prompts import PromptTemplate
 
 ANALYSIS_PROMPT = PromptTemplate(
-    input_variables=["analysis", "recommendations", "client_type"],
-    template="""You are an AI assistant that has extensive experience in cybersecurity penetration testing.
-Your task is to analyse the input derived from scoping questions to generate an exhaustive list of test cases
-according to the OWASP framework.
+    input_variables=["interview_answers"],
+    template="""You are an expert in cybersecurity penetration testing.
+Based solely on the interview answers provided and the OWASP guidelines, write a complete Python script that implements multiple tests on the given information.
+Your output must contain only the Python code—no explanations, no comments, no extra text.
+Do not output any thoughts or analysis, only code.
 
-Your output must strictly return a valid JSON
-No code blocks, no extra words, no explanations. 
-The JSON should follow the format of:
-{{
-    {
-        <testcase 1>: <duration>,
-        <testcase 2>: <duration>,
-        ...
-    }...
-}}
-
-Given are the inputs from the scoping questions:
-Tech Stack: {tech_stack}
-Security Concerns: {security_concerns}
-Client Type: {client_type}
+Interview Answers:
+{interview_answers}
 """
 )
-

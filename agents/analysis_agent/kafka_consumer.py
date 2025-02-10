@@ -28,10 +28,11 @@ def start_analysis_consumer():
             if msg.error():
                 continue
 
-            scoping_data = json.loads(msg.value().decode('utf-8'))
-
-            agent = AnalysisAgent()
-            agent.analyze_client_data(scoping_data["scoping_data_id"])
+            data = json.loads(msg.value().decode('utf-8'))
+            interview_id = data.get("interview_id")
+            if interview_id:
+                agent = AnalysisAgent()
+                agent.analyze_interview(interview_id)
     except KeyboardInterrupt:
         logger.error("Consumer interrupted by user")
     finally:

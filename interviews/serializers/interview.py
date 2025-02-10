@@ -2,6 +2,7 @@ from rest_framework import serializers
 from interviews.models import Interview, Answer
 from tickets.models import Ticket
 from .answer import AnswerSerializer
+from agents.analysis_agent.kafka_producer import send_to_analysis
 
 from loguru import logger
 
@@ -31,6 +32,8 @@ class InterviewSerializer(serializers.ModelSerializer):
         # Answer.objects.bulk_create(
         #     [Answer(interview=interview, **answer_data) for answer_data in answers_data]
         # )
+        send_to_analysis({"interview_id": interview.id})
+
         return interview
 
     def update(self, instance, validated_data):
