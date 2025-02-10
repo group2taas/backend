@@ -17,11 +17,11 @@ def delivery_report(err, msg):
     else:
         logger.info(f"Message delivered to {msg.topic()} [{msg.partition()}]")
 
-def send_to_testing(scoping_data):
+def send_to_testing(analysis_data):
     testing_topic = settings.KAFKA_TESTING_TOPIC
     producer.produce(
         topic=testing_topic,
-        value=json.dumps(scoping_data),
+        value=json.dumps(analysis_data),
         callback=delivery_report
     )
     producer.flush()

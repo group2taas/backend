@@ -9,7 +9,7 @@ from loguru import logger
 
 BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
 TOPIC_NAME = settings.KAFKA_TESTING_TOPIC
-GROUP_ID = settings.KAFKA_TESTING_GROUP_ID,
+GROUP_ID = settings.KAFKA_TESTING_GROUP_ID
 
 def start_testing_consumer():
     consumer_config = {
@@ -28,12 +28,16 @@ def start_testing_consumer():
             if not msg or msg.error():
                 continue
 
-            assessment_results = json.loads(msg.value().decode('utf-8'))
-            logger.info(f"Processing results for {assessment_results['scoping_data_id']}")
+            message_payload = json.loads(msg.value().decode('utf-8'))
+            interview_id = message_payload.get("interview_id")
+            analysis_result = message_payload.get("analysis_result")
+            logger.info(f"Received analysis result for interview {interview_id}")
 
-            ##TO ADD LOGIC TO CALL SELENIUM BACKEND
-            
-            
+            if analysis_result:
+                testing_agent = TestingAgent()
+                testing_agent.run_tests(analysis_result)
+            else:
+                logger.warning("No analysis_result found in message")
     except KeyboardInterrupt:
         logger.error("Consumer interrupted by user")
     finally:
