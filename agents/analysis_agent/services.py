@@ -38,9 +38,12 @@ class AnalysisAgent:
 
     def _parse_output(self, raw_output):
         try:
-            content = re.sub(r"^```(?:python)?\s*", "", raw_output, flags=re.IGNORECASE)
-            content = re.sub(r"\s*```$", "", content, flags=re.IGNORECASE)
-            return content.strip()
+            match = re.search(r"```(?:python)?\s*(.*?)\s*```", raw_output, flags=re.DOTALL)
+            if match:
+                code = match.group(1)
+            else:
+                code = raw_output
+            return code.strip()
         except Exception as e:
             logger.warning("Failed to parse raw data from model: {}", e)
             return "Error: Failed to parse model output"

@@ -70,3 +70,4 @@ I created a database with name "users"
 1 Terminal for zookeeper
 1 Terminal for kafka
 1 Terminal for analysis agent (python manage.py run_analysis_agent)
+1 Terminal for testing agent (python manage.py run_testing_agent)
