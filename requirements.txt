@@ -1,3 +1,5 @@
+beautifulsoup4==4.13.3
+chromadb==0.6.3
 confluent_kafka>=2.4,<2.5
 Django==3.1.12
 django-cors-headers==3.5.0
@@ -9,10 +11,17 @@ elasticsearch==8.17.1
 firebase-admin==6.6.0
 huggingface_hub==0.28.1
 langchain==0.3.17
+langchain-community==0.3.16
+langchain-experimental==0.3.4
+langchain-openai==0.3.5
 loguru==0.7.3
+networkx==3.4.2
+openpyxl==3.1.5
+pandas==2.2.3
 pymongo==3.11.4
 python-dotenv==1.0.1
 quixstreams==3.7.0
 redis==5.2.1
 rest_framework_simplejwt==0.0.2
 setuptools==75.8.0
+unstructured==0.16.20
