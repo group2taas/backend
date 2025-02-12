@@ -26,4 +26,5 @@ class AIModelHandler:
                 {"role": "user", "content": prompt}
             ]
         )
-        return completion
+        content = completion.choices[0].message.content
+        return content

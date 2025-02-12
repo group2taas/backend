@@ -22,9 +22,8 @@ class AnalysisAgent:
 
         prompt = ANALYSIS_PROMPT.format(interview_answers=interview_answers)
 
-
         print("Prompt being sent to model:", prompt)
-        raw_output = self.model_handler.query_model(prompt, max_new_tokens=256)
+        raw_output = self.model_handler.query_model(prompt)
         print("Raw model output:", raw_output)
 
         parsed_output = self._parse_output(raw_output)
@@ -39,9 +38,9 @@ class AnalysisAgent:
 
     def _parse_output(self, raw_output):
         try:
-            code = re.sub(r"```(?:python)?", "", raw_output, flags=re.IGNORECASE)
-            code = code.replace("```", "").strip()
-            return code
+            content = re.sub(r"^```(?:python)?\s*", "", raw_output, flags=re.IGNORECASE)
+            content = re.sub(r"\s*```$", "", content, flags=re.IGNORECASE)
+            return content.strip()
         except Exception as e:
             logger.warning("Failed to parse raw data from model: {}", e)
             return "Error: Failed to parse model output"

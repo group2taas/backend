@@ -32,7 +32,7 @@ class InterviewSerializer(serializers.ModelSerializer):
         # Answer.objects.bulk_create(
         #     [Answer(interview=interview, **answer_data) for answer_data in answers_data]
         # )
-        send_to_analysis({"interview_id": interview.id})
+        send_to_analysis(interview.id)
 
         return interview
 
