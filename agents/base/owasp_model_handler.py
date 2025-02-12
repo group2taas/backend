@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from langchain.agents.agent_types import AgentType
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
+from langchain_experimental.utilities import PythonREPL
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.document_loaders import UnstructuredExcelLoader, WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -98,6 +99,20 @@ class OWASPModelHandler:
                 f"Failed to create agent from given file {self.reference} \n {e}"
             )
 
+    def _sanitize_output(self, text: str):
+        _, after = text.split("```python")
+        return after.split("```")[0]
+
+    def run_code(self, response: str):
+        # TODO: include exception catching and handling
+        logger.warning("Successful code execution is not guaranteed...")
+        code = self._sanitize_output(response)
+        python_repl = PythonREPL()
+        python_repl.run(code)
+
+    def display_code(self, response: str):
+        display(Markdown(f"{response}"))
+
     def query_model(self, user_input: str, use_retreiver: bool = True):
         if use_retreiver:
             self.retriever = self.load_owasp_retriever(self.reference)
@@ -107,5 +122,4 @@ class OWASPModelHandler:
             agent = self.create_agent()
             response = agent.invoke(user_input)
             response = response["output"]
-        display(Markdown(f"{response}"))
         return response
