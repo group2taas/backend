@@ -1,7 +1,12 @@
 # Backend
 
-You need to have mongo installed (I use mongoDB Compass for the GUI)
-Before running below, go to your terminal and start mongo (command below), then open compass and connect
+Create a folder and put both your frontend and backend folder inside. 
+Move the docker-compose.yml out one layer (same layer as frontend/ backend/)
+Open docker desktop 
+in backend/.env, change to KAFKA_BOOTSTRAP_SERVERS="kafka:9092"
+
+docker-compose up --build
+docker-compose down
 
 ## Set Up Kafka
 1. Install Zookeeper
@@ -52,9 +57,6 @@ Before running below, go to your terminal and start mongo (command below), then 
 
 ## Useful commands
 `deactivate` to stop the virtual env
-
-`mongod --dbpath /usr/local/var/mongodb` to start mongo terminal (depends on where you place)
-I created a database with name "users" 
 
 ## Common Errors Faced
 `Error: That port is already in use.`
