@@ -2,23 +2,36 @@ import tempfile
 import asyncio
 import os
 from loguru import logger
-from base.model_handler import AIModelHandler
+from agents.base.model_handler import AIModelHandler
 from .prompts import TEST_CASE_GENERATION_PROMPT
+from tickets.models import Ticket
+from channels.layers import get_channel_layer
 
 class TestingAgent:
-    def __init__(self):    
-        pass
+    def __init__(self, ticket_id):
+        self.ticket_id = ticket_id
+        self.group_name = f"test_status_{ticket_id}"
 
     async def process_output(self, line):
-            cleaned_line = line.decode().strip()
-            logger.info(f"Subprocess output: {cleaned_line}")
+        cleaned_line = line.decode().strip()
+        logger.info(f"Subprocess output: {cleaned_line}")
+        channel_layer = get_channel_layer()
+        await channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "test_status_update",
+                "message": cleaned_line,
+            }
+        )
+    
 
     async def read_output(self, stream, callback):
         while True:
             line = await stream.readline()
-            await self.process_output(line)
             if not line:
                 break
+            await self.process_output(line)
+
 
     def generate_test_cases_from_code(self, code):
         llm_model = AIModelHandler()
@@ -45,7 +58,7 @@ class TestingAgent:
             pass
 
         async def run_subprocess():
-            sub_process = asyncio.create_subprocess_exec(
+            sub_process = await asyncio.create_subprocess_exec(
                 "python", "-u",  tmp_file_path, 
                 stdout = asyncio.subprocess.PIPE,
                 stderr = asyncio.subprocess.PIPE
@@ -62,7 +75,8 @@ class TestingAgent:
 
         try:
             asyncio.run(run_subprocess())
-
+            Ticket.objects.filter(id=self.ticket_id).update(status="completed")
+            logger.info(f"Ticket {self.ticket_id} marked as completed")
         except Exception as e:
             logger.error(f"Failed to run tests: {e}")
         finally:

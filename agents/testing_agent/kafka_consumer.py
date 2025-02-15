@@ -4,7 +4,7 @@ import json
 import os
 from django.conf import settings
 from loguru import logger
-
+from interviews.models.interview import Interview
 
 
 BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
@@ -34,7 +34,9 @@ def start_testing_consumer():
             logger.info(f"Received analysis result for interview {interview_id}")
 
             if analysis_result:
-                testing_agent = TestingAgent()
+                interview = Interview.objects.get(id=interview_id)
+                ticket_id = interview.ticket_id
+                testing_agent = TestingAgent(ticket_id=ticket_id)
                 testing_agent.run_tests(analysis_result)
             else:
                 logger.warning("No analysis_result found in message")

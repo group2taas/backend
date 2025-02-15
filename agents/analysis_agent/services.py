@@ -4,6 +4,7 @@ from agents.base.model_handler import AIModelHandler
 from interviews.models.interview import Interview
 from .prompts import ANALYSIS_PROMPT
 from .kafka_producer import send_to_testing
+from tickets.models import Ticket
 from loguru import logger
 import re
 
@@ -27,6 +28,11 @@ class AnalysisAgent:
         print("Raw model output:", raw_output)
 
         parsed_output = self._parse_output(raw_output)
+
+        ticket = interview.ticket
+        ticket.status = "testing"
+        ticket.save()
+
         interview.save()
 
         send_to_testing({
