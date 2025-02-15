@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import logging
 import os
-import sys 
+import sys
 from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
@@ -24,9 +24,15 @@ REDIS_HOST = os.getenv("REDIS_URL")
 ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_URL")
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
-KAFKA_TECHNICAL_PRE_SALES_TOPIC = os.getenv("KAFKA_TECHNICAL_PRE_SALES_TOPIC")
-KAFKA_SALES_TOPIC = os.getenv("KAFKA_SALES_TOPIC")
-KAFKA_GROUP_ID = os.getenv("KAFKA_GROUP_ID")
+
+KAFKA_ANALYSIS_TOPIC = os.getenv("KAFKA_ANALYSIS_TOPIC")
+KAFKA_ANALYSIS_GROUP_ID = os.getenv("KAFKA_ANALYSIS_GROUP_ID")
+
+KAFKA_TESTING_TOPIC = os.getenv("KAFKA_TESTING_TOPIC")
+KAFKA_TESTING_GROUP_ID = os.getenv("KAFKA_TESTING_GROUP_ID")
+
+KAFKA_PLACEHOLDER_TOPIC = os.getenv("KAFKA_PLACEHOLDER_TOPIC")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,10 +61,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
+    "channels",
     "users",
     "tickets",
-    "agents.technical_pre_sales",
-    "corsheaders"
+    "interviews",
+    "results",
+    "corsheaders",
+    "agents.analysis_agent",
+    "agents.testing_agent",
 ]
 
 REST_FRAMEWORK = {
@@ -67,7 +77,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-AUTH_USER_MODEL = 'users.UserProfile'
+AUTH_USER_MODEL = "users.UserProfile"
 
 
 SIMPLE_JWT = {
@@ -79,8 +89,8 @@ SIMPLE_JWT = {
     "AUTH_COOKIE_HTTP_ONLY": True,
     "AUTH_COOKIE_PATH": "/",
     "AUTH_COOKIE_SAMESITE": "Lax",
-    'USER_ID_CLAIM': 'uid',        
-    'USER_ID_FIELD': 'uid', 
+    "USER_ID_CLAIM": "uid",
+    "USER_ID_FIELD": "uid",
 }
 
 MIDDLEWARE = [
@@ -124,7 +134,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
-
+ASGI_APPLICATION = "core.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -138,6 +148,20 @@ DATABASES = {
             "ssl": True,
         },
     }
+}
+
+CHANNEL_LAYERS = {
+    # This is for use without docker
+    # "default": {
+    #     "BACKEND": "channels.layers.InMemoryChannelLayer",
+    # },
+    # This is for use with docker
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
 }
 
 # Password validation
@@ -176,6 +200,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -193,26 +220,33 @@ logger.add(
     format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
     level="INFO",
     backtrace=True,
-    diagnose=True,  
+    diagnose=True,
 )
+
 
 class LoguruHandler(logging.Handler):
     def emit(self, record):
-        log_entry = self.format(record)
-        logger.log(record.levelname, log_entry)
+        try:
+            level = logger.level(record.levelname).name
+        except KeyError:
+            level = record.levelno  
+
+        logger.log(level, record.getMessage())
+
+
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": True,
     "handlers": {
         "loguru": {
-            "()": LoguruHandler,  
+            "()": LoguruHandler,
         },
     },
     "loggers": {
         "django": {
             "handlers": ["loguru"],
-            "level": "INFO",  
+            "level": "INFO",
             "propagate": True,
         },
     },

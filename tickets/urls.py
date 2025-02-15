@@ -7,7 +7,7 @@ router = DefaultRouter()
 
 # Define urlpatterns
 urlpatterns = [
-    path("create", TicketCreateView.as_view(), name="create_ticket"),
-    path("<int:ticket_id>", TicketDetailView.as_view(), name="ticket_detail"),
+    path("create/", TicketCreateView.as_view(), name="create_ticket"),
+    path("<int:ticket_id>/", TicketDetailView.as_view(), name="ticket_detail"),
     path("", AllTicketsView.as_view(), name="ticket_list"),
 ]

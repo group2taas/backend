@@ -1,7 +1,12 @@
 # Backend
 
-You need to have mongo installed (I use mongoDB Compass for the GUI)
-Before running below, go to your terminal and start mongo (command below), then open compass and connect
+Create a folder and put both your frontend and backend folder inside. 
+Move the docker-compose.yml out one layer (same layer as frontend/ backend/)
+Open docker desktop 
+in backend/.env, change to KAFKA_BOOTSTRAP_SERVERS="kafka:9092"
+
+docker-compose up --build
+docker-compose down
 
 ## Set Up Kafka
 1. Install Zookeeper
@@ -14,8 +19,7 @@ Before running below, go to your terminal and start mongo (command below), then 
 `zkServer start`
 
 4. Start Kafka Server (default port is localhost:9092)
-`kafka-server-start /usr/local/etc/kafka/server.properties`
-
+`kafka-server-start /usr/local/etc/kafka/server.properties` (/opt/homebrew/etc/kafka/server.properties for macos)
 ## Setting Up
 
 1. Clone the repo
@@ -37,17 +41,22 @@ Before running below, go to your terminal and start mongo (command below), then 
 4. Create migrations
    `python manage.py makemigrations`
 
-5. Apply migrations
+5. Create Superuser
+   `python manage.py createsuperuser`
+   uid just put admin, password just password
+   admin page is at localhost:8000/admin
+
+6. Apply migrations
    `python manage.py migrate`
 
-6. Start
+7. Start
    `python manage.py runserver`
+
+8. Daphne (Websocket server)
+   `daphne -b 0.0.0.0 -p 8000 core.asgi:application`
 
 ## Useful commands
 `deactivate` to stop the virtual env
-
-`mongod --dbpath /usr/local/var/mongodb` to start mongo terminal (depends on where you place)
-I created a database with name "users" 
 
 ## Common Errors Faced
 `Error: That port is already in use.`
@@ -57,3 +66,10 @@ I created a database with name "users"
 2. Look for the PID that your server is running on and kill it.
 `kill -9 <PID>`
 
+1 Terminal for frontend
+1 Terminal for Django backend
+1 Terminal for Daphne backend (Websockets)
+1 Terminal for zookeeper
+1 Terminal for kafka
+1 Terminal for analysis agent (python manage.py run_analysis_agent)
+1 Terminal for testing agent (python manage.py run_testing_agent)

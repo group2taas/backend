@@ -5,7 +5,6 @@ from users.models import UserProfile
 class Ticket(models.Model):
     STATUS_CHOICES = [
         ("new", "Estimating Tests"),
-        ("pending", "Pending Approval"),
         ("testing", "Testing in Progress"),
         ("completed", "Completed"),
     ]

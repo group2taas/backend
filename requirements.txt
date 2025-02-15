@@ -1,6 +1,9 @@
 beautifulsoup4==4.13.3
 chromadb==0.6.3
+channels==3.0.4
+channels_redis==4.2.1
 confluent_kafka>=2.4,<2.5
+daphne==3.0.2
 Django==3.1.12
 django-cors-headers==3.5.0
 djangorestframework==3.12.4
@@ -18,6 +21,7 @@ loguru==0.7.3
 networkx==3.4.2
 openpyxl==3.1.5
 pandas==2.2.3
+openai==1.61.1
 pymongo==3.11.4
 python-dotenv==1.0.1
 quixstreams==3.7.0
