@@ -151,8 +151,16 @@ DATABASES = {
 }
 
 CHANNEL_LAYERS = {
+    # This is for use without docker
+    # "default": {
+    #     "BACKEND": "channels.layers.InMemoryChannelLayer",
+    # },
+    # This is for use with docker
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
     },
 }
 
