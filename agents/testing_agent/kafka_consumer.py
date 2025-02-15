@@ -7,6 +7,7 @@ from django.conf import settings
 from loguru import logger
 from interviews.models.interview import Interview
 from concurrent.futures import ThreadPoolExecutor
+import time
 
 BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
 TOPIC_NAME = settings.KAFKA_TESTING_TOPIC
@@ -16,6 +17,7 @@ def process_consumer_message(message_payload):
     interview_id = message_payload.get("interview_id")
     analysis_result = message_payload.get("analysis_result")
     logger.info(f"Received analysis result for interview {interview_id}")
+    logger.info(f"{interview_id} starting to process now")
 
     if analysis_result:
         interview = Interview.objects.get(id=interview_id)

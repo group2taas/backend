@@ -1,13 +1,49 @@
 # Backend
 
-Create a folder and put both your frontend and backend folder inside. 
-Move the docker-compose.yml out one layer (same layer as frontend/ backend/)
+Create a parent folder and put both your frontend and backend folder inside. 
+
+Move the docker-compose.yml out to the same layer as frontend and backend folder.
+
+Your parent folder should have the following structure:
+```bash
+parent_folder
+├── frontend
+│      ├── folder1
+│      ├── folder2
+│      ...
+│ 
+├── backend
+│      ├── folder1
+│      ├── folder2
+│      ...
+│      
+└── docker-compose.yml
+```
+
 Open docker desktop 
-in backend/.env, change to KAFKA_BOOTSTRAP_SERVERS="kafka:9092"
+in backend/.env, modify the bootstrap servers (changed in liveupdates document)
+```
+KAFKA_BOOTSTRAP_SERVERS="kafka:9092" 
+```
 
+## Docker commands
+Ensure that you have both backend and frontend folders with the latest docker image.
+Ensure that your terminal is at the parent folder.
+
+To build the containers
+```bash
 docker-compose up --build
-docker-compose down
+```
 
+To stop running the container, run
+```
+docker-compose down
+```
+
+In order for the application to reflect new changes, you need to restart the docker
+container and rebuild the image.
+
+# ARCHIVES 
 ## Set Up Kafka
 1. Install Zookeeper
 `brew install zookeeper`
