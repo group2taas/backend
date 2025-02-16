@@ -1,6 +1,17 @@
 from django.db import models
 from tickets.models import Ticket
 from django.core.validators import FileExtensionValidator
+import os
+
+
+def upload_to(instance, filename):
+    return os.path.join(
+        "results",
+        str(instance.user.pk),
+        str(instance.ticket.pk),
+        str(instance.pk),
+        filename,
+    )
 
 
 class Result(models.Model):
@@ -9,7 +20,7 @@ class Result(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="results")
     progress = models.IntegerField(default=0)
     pdf = models.FileField(
-        upload_to="results/",
+        upload_to=upload_to,
         blank=False,
         null=False,
         validators=[FileExtensionValidator(allowed_extensions=["pdf"])],
