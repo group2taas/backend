@@ -21,7 +21,6 @@ from loguru import logger
 load_dotenv()
 MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
 REDIS_HOST = os.getenv("REDIS_URL")
-ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_URL")
 
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS")
 
