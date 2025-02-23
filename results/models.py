@@ -23,8 +23,8 @@ class Result(models.Model):
     progress = models.PositiveIntegerField(default=0)
     pdf = models.FileField(
         upload_to=upload_to,
-        blank=False,
-        null=False,
+        blank=True,
+        null=True,
         validators=[FileExtensionValidator(allowed_extensions=["pdf"])],
     )
 

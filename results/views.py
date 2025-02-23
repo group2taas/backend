@@ -51,4 +51,9 @@ class ResultPDFView(APIView):
         result = get_object_or_404(Result, pk=result_id)
         _check_user_permission(request, result)
         pdf_path = result.pdf.path
+        if not pdf_path:
+            return Response(
+                {"error": f"No PDF file found for result {result_id}"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         return FileResponse(open(pdf_path, "rb"), content_type="application/pdf")

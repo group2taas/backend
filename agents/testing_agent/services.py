@@ -1,15 +1,19 @@
 import tempfile
 import asyncio
 import os
+import json
 from loguru import logger
 from agents.base.model_handler import AIModelHandler
 from .prompts import TEST_CASE_GENERATION_PROMPT
 from tickets.models import Ticket
+from results.models import Result
 from channels.layers import get_channel_layer
 
 class TestingAgent:
     def __init__(self, ticket_id):
         self.ticket_id = ticket_id
+        self.ticket_obj = Ticket.objects.filter(id=ticket_id)
+        self.result_obj, _ = Result.objects.get_or_create(ticket_id = ticket_id)
         self.group_name = f"test_status_{ticket_id}"
 
     async def process_output(self, line):
@@ -23,8 +27,14 @@ class TestingAgent:
                 "message": cleaned_line,
             }
         )
-    
 
+        try: 
+            json_data = json.loads(cleaned_line)
+            self.result_obj.add_log(json_data)
+        except json.JSONDecodeError:
+            logger.error(f"Invalid JSON output: {cleaned_line}")
+        
+    
     async def read_output(self, stream, callback):
         while True:
             line = await stream.readline()
@@ -75,7 +85,7 @@ class TestingAgent:
 
         try:
             asyncio.run(run_subprocess())
-            Ticket.objects.filter(id=self.ticket_id).update(status="completed")
+            self.ticket_obj.update(status="completed")
             logger.info(f"Ticket {self.ticket_id} marked as completed")
         except Exception as e:
             logger.error(f"Failed to run tests: {e}")
