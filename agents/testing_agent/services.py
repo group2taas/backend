@@ -33,6 +33,7 @@ class TestingAgent:
             self.result_obj.add_log(json_data)
         except json.JSONDecodeError:
             logger.error(f"Invalid JSON output: {cleaned_line}")
+            self.ticket_obj.update(status = 'error')
         
     
     async def read_output(self, stream, callback):
@@ -89,6 +90,7 @@ class TestingAgent:
             logger.info(f"Ticket {self.ticket_id} marked as completed")
         except Exception as e:
             logger.error(f"Failed to run tests: {e}")
+            self.ticket_obj.update(status='error')
         finally:
             try:
                 os.remove(tmp_file_path)

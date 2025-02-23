@@ -6,6 +6,7 @@ class Ticket(models.Model):
     STATUS_CHOICES = [
         ("new", "Estimating Tests"),
         ("testing", "Testing in Progress"),
+        ("error", "Error"),
         ("completed", "Completed"),
     ]
     title = models.CharField(max_length=255)
