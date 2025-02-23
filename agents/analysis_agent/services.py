@@ -2,7 +2,7 @@ import json
 from bson import ObjectId
 from agents.base.model_handler import AIModelHandler
 from interviews.models.interview import Interview
-from .prompts import ANALYSIS_PROMPT
+from .prompts import ANALYSIS_PROMPT, ZAP_TEMPLATE_SCRIPT
 from .kafka_producer import send_to_testing
 from tickets.models import Ticket
 from loguru import logger
@@ -21,7 +21,7 @@ class AnalysisAgent:
             question_text = getattr(answer.question, "text", str(answer.question))
             interview_answers += f"Question: {question_text}\nAnswer: {answer.body}\n\n"
 
-        prompt = ANALYSIS_PROMPT.format(interview_answers=interview_answers)
+        prompt = ANALYSIS_PROMPT.format(template_script=ZAP_TEMPLATE_SCRIPT, interview_answers=interview_answers)
 
         print("Prompt being sent to model:", prompt)
         raw_output = self.model_handler.query_model(prompt)
