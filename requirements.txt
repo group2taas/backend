@@ -27,5 +27,7 @@ python-dotenv==1.0.1
 quixstreams==3.7.0
 redis==5.2.1
 rest_framework_simplejwt==0.0.2
+selenium==4.29.0
 setuptools==75.8.0
 unstructured==0.16.20
+zaproxy==0.4.0
