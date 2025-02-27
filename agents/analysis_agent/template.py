@@ -32,8 +32,10 @@ class OWASP_SecurityTests(unittest.TestCase):
         self.driver = webdriver.Chrome(service=service, options=options)
         self.driver.delete_all_cookies()
         self.zap = ZAPv2(apikey=ZAP_API_KEY, proxies={"http": self.zap_proxy, "https": self.zap_proxy})
-
+        self.zap.core.delete_all_alerts()
         self.run_zap_scans()
+        self.alert_count_before = len(self.zap.core.alerts(baseurl=self.target_url))
+
 
     def run_zap_scans(self):
         self.zap.spider.scan(self.target_url)
@@ -55,8 +57,8 @@ class OWASP_SecurityTests(unittest.TestCase):
             self.generate_summary_report(test)
 
     def generate_summary_report(self, test_name):
-        alerts = self.zap.core.alerts(baseurl=self.target_url)
-        
+        all_alerts = self.zap.core.alerts(baseurl=self.target_url)
+        new_alerts = all_alerts[self.alert_count_before:]           
         severity_counts = {
             "High": 0,
             "Medium": 0,
@@ -64,7 +66,7 @@ class OWASP_SecurityTests(unittest.TestCase):
             "Informational": 0
         }
 
-        for alert in alerts:
+        for alert in new_alerts:
             severity = alert.get("risk", "Informational")
             if severity in severity_counts:
                 severity_counts[severity] += 1
