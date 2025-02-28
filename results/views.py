@@ -57,3 +57,13 @@ class ResultPDFView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
         return FileResponse(open(pdf_path, "rb"), content_type="application/pdf")
+
+
+class TicketResultView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, ticket_id):
+        result = Result.objects.filter(ticket_id=ticket_id)
+        _check_user_permission(request, result)
+        serializer = ResultSerializer(result, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
