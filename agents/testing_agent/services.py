@@ -8,60 +8,62 @@ from .prompts import TEST_CASE_GENERATION_PROMPT
 from tickets.models import Ticket
 from results.models import Result
 from channels.layers import get_channel_layer
+from asgiref.sync import sync_to_async
+from collections import defaultdict
 
 class TestingAgent:
     def __init__(self, ticket_id):
         self.ticket_id = ticket_id
-        self.ticket_obj = Ticket.objects.filter(id=ticket_id)
-        self.result_obj, _ = Result.objects.get_or_create(ticket_id = ticket_id)
         self.group_name = f"test_status_{ticket_id}"
+        self.test_cases = defaultdict(set)
 
     async def process_output(self, line):
         cleaned_line = line.decode().strip()
         logger.info(f"Subprocess output: {cleaned_line}")
-        channel_layer = get_channel_layer()
-        await channel_layer.group_send(
-            self.group_name,
-            {
-                "type": "test_status_update",
-                "message": cleaned_line,
-            }
-        )
-
         try: 
             json_data = json.loads(cleaned_line)
-            self.result_obj.add_log(json_data)
+            if not json_data.get("test_case") in self.test_cases:
+                channel_layer = get_channel_layer()
+                await channel_layer.group_send(
+                    self.group_name,
+                    {
+                        "type": "test_status_update",
+                        "message": cleaned_line,
+                    }
+                )
+                self.test_cases[json_data.get("test_case")].add(cleaned_line)
+                await sync_to_async(self.result_obj.add_log)(json_data)
         except json.JSONDecodeError:
             logger.error(f"Invalid JSON output: {cleaned_line}")
-            self.ticket_obj.update(status = 'error')
+            await sync_to_async (self.ticket_obj.update)(status = 'error')
         
     
-    async def read_output(self, stream, callback):
+    async def read_output(self, stream):
         while True:
             line = await stream.readline()
             if not line:
                 break
             await self.process_output(line)
 
+        #for testing
+        # for i in range(10):
+        #     line = json.dumps({"test_case": f"test_case_{i}", "result": "passed"}).encode() + b"\n"
+        #     await self.process_output(line) 
+        #     await asyncio.sleep(10)
 
-    def generate_test_cases_from_code(self, code):
-        llm_model = AIModelHandler()
+
+    async def run_tests(self, code):
+
+        self.ticket_obj = await sync_to_async(Ticket.objects.get)(id=self.ticket_id)
+        self.result_obj, _ = await sync_to_async(Result.objects.get_or_create)(ticket_id = self.ticket_id)
         
-        prompt = TEST_CASE_GENERATION_PROMPT.format(testing_codebase = code)
-
-        logger.info(f"Prompt sent to model to generate test cases: {prompt}")
-        output = llm_model.query_model(prompt = prompt)
-        print(output)
-        return output
-
-
-    def run_tests(self, code):
-        
-        test_cases = self.generate_test_cases_from_code(code)
+        self.ticket_obj.status = "testing"
+        await sync_to_async(self.ticket_obj.save)()
 
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as tmp_file:
             tmp_file.write(code)
             tmp_file_path = tmp_file.name
+        
 
         logger.info(f"Temporary test file created at: {tmp_file_path}")
 
@@ -75,9 +77,9 @@ class TestingAgent:
                 stderr = asyncio.subprocess.PIPE
             )
             
+            
             tasks = [
-                asyncio.create_task(self.read_output(sub_process.stdout, print)),
-                asyncio.create_task(self.read_output(sub_process.stderr, print)),
+                asyncio.create_task(self.read_output(sub_process.stdout)),
                 asyncio.create_task(main_task())
             ]
 
@@ -85,12 +87,14 @@ class TestingAgent:
             await sub_process.wait()
 
         try:
-            asyncio.run(run_subprocess())
-            self.ticket_obj.update(status="completed")
+            await run_subprocess()
+            self.ticket_obj.status = "completed"
+            await sync_to_async(self.ticket_obj.save)()
             logger.info(f"Ticket {self.ticket_id} marked as completed")
         except Exception as e:
             logger.error(f"Failed to run tests: {e}")
-            self.ticket_obj.update(status='error')
+            self.ticket_obj.status = "error"
+            await sync_to_async(self.ticket_obj.save)()
         finally:
             try:
                 os.remove(tmp_file_path)

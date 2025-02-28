@@ -8,6 +8,7 @@ from loguru import logger
 from interviews.models.interview import Interview
 from concurrent.futures import ThreadPoolExecutor
 import time
+from asgiref.sync import async_to_sync
 
 BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
 TOPIC_NAME = settings.KAFKA_TESTING_TOPIC
@@ -23,7 +24,7 @@ def process_consumer_message(message_payload):
         interview = Interview.objects.get(id=interview_id)
         ticket_id = interview.ticket_id
         testing_agent = TestingAgent(ticket_id=ticket_id)
-        testing_agent.run_tests(analysis_result)
+        async_to_sync(testing_agent.run_tests)(analysis_result)
     else:
         logger.warning("No analysis_result found in message")
     
