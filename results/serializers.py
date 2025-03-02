@@ -3,9 +3,30 @@ from .models import Result
 
 
 class ResultSerializer(serializers.ModelSerializer):
+    alerts_summary = serializers.SerializerMethodField()
     class Meta:
         model = Result
-        fields = "__all__"
+        fields = [
+            'id', 
+            'title', 
+            'created_at', 
+            'ticket', 
+            'logs', 
+            'progress', 
+            'pdf',
+            'security_alerts',
+            'alerts_detail',
+            'alerts_summary'
+        ]
+        read_only_fields = ['logs', 'progress', 'security_alerts', 'alerts_detail']
+    
+    def get_alerts_summary(self, obj):
+        counts = obj.get_alert_counts()
+        total = sum(counts.values())
+        return {
+            "counts": counts,
+            "total": total
+        }
 
     def validate_ticket(self, ticket):
         request = self.context.get("request")

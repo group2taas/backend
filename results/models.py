@@ -21,6 +21,8 @@ class Result(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="results")
     logs = models.JSONField(default=list)
     progress = models.PositiveIntegerField(default=0)
+    security_alerts = models.JSONField(default=dict)
+    alerts_detail = models.JSONField(default=list)
     pdf = models.FileField(
         upload_to=upload_to,
         blank=True,
@@ -34,11 +36,27 @@ class Result(models.Model):
             result.logs.append(test_log)
             result.progress = len(result.logs)
             result.save(update_fields=["logs", "progress"])
+    
+    def update_test_results(self, result_data):
+        with transaction.atomic():
+            result = Result.objects.select_for_update().get(id=self.id)
+            
+            if "security_alerts" in result_data:
+                result.security_alerts = result_data["security_alerts"]
+                
+            if "alert_details" in result_data:
+                result.alerts_detail = result_data["alert_details"]
+                            
+            result.save(update_fields=["security_alerts", "alerts_detail"])
 
-    # def increment_progress(self):
-    #     self.progress = models.F("progress") + 1
-    #     self.save(update_fields=["progress"])
-    #     self.refresh_from_db()
+    def get_alert_counts(self):
+        """Returns alert counts by severity"""
+        return self.security_alerts or {
+            "High": 0,
+            "Medium": 0,
+            "Low": 0,
+            "Informational": 0
+        }
 
     def __str__(self):
         return self.title

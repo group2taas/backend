@@ -22,5 +22,22 @@ class TestStatusConsumer(AsyncWebsocketConsumer):
         message = event['message']
 
         await self.send(text_data=json.dumps({
+            'type': 'status_update',
             'message': message
+        }))
+        
+    async def test_error(self, event):
+        error = event['error']
+
+        await self.send(text_data=json.dumps({
+            'type': 'error',
+            'error': error
+        }))
+        
+    async def test_results_available(self, event):
+        data = event['data']
+
+        await self.send(text_data=json.dumps({
+            'type': 'results_available',
+            'data': data
         }))

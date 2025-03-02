@@ -8,6 +8,7 @@ from loguru import logger
 from interviews.models.interview import Interview
 from concurrent.futures import ThreadPoolExecutor
 import time
+import asyncio
 
 BOOTSTRAP_SERVERS = settings.KAFKA_BOOTSTRAP_SERVERS
 TOPIC_NAME = settings.KAFKA_TESTING_TOPIC
@@ -20,10 +21,19 @@ def process_consumer_message(message_payload):
     logger.info(f"{interview_id} starting to process now")
 
     if analysis_result:
-        interview = Interview.objects.get(id=interview_id)
-        ticket_id = interview.ticket_id
-        testing_agent = TestingAgent(ticket_id=ticket_id)
-        testing_agent.run_tests(analysis_result)
+        try:
+            interview = Interview.objects.get(id=interview_id)
+            ticket_id = interview.ticket_id
+            
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            testing_agent = TestingAgent(ticket_id=ticket_id)
+            
+            loop.run_until_complete(testing_agent.run_tests_async(analysis_result))
+            loop.close()
+        except Exception as e:
+            logger.error(f"Error processing message: {e}")
     else:
         logger.warning("No analysis_result found in message")
     
