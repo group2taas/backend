@@ -105,10 +105,13 @@ class TestingAgent:
         tmp_file_path = None
         try:
             test_cases = self.generate_test_cases_from_code(code)
+
             with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".py", delete=False
+                mode='w', suffix='.py', delete=False
             ) as tmp_file:
                 tmp_file.write(code)
+                
+
                 tmp_file_path = tmp_file.name
 
             logger.info(f"Temporary test file created at: {tmp_file_path}")
