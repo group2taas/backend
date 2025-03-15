@@ -12,10 +12,12 @@ from channels.layers import get_channel_layer
 
 
 class TestingAgent:
-    def __init__(self, ticket_id):
+    def __init__(self, ticket_id, num_test_cases):
         self.ticket_id = ticket_id
         self.ticket_obj = Ticket.objects.filter(id=ticket_id)
-        self.result_obj, _ = Result.objects.get_or_create(ticket_id=ticket_id)
+        self.result_obj, _ = Result.objects.update_or_create(
+            ticket_id=ticket_id, defaults={"num_tests": num_test_cases}
+        )
         self.group_name = f"test_status_{ticket_id}"
 
     async def process_output(self, line):

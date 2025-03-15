@@ -27,6 +27,7 @@ class Result(models.Model):
     title = models.CharField(max_length=255, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="results")
+    num_tests = models.PositiveIntegerField(default=0)
     logs = models.JSONField(default=list)
     progress = models.PositiveIntegerField(default=0)
     security_alerts = models.JSONField(default=dict)
