@@ -4,6 +4,7 @@ from .models import Result
 
 class ResultSerializer(serializers.ModelSerializer):
     alerts_summary = serializers.SerializerMethodField()
+    pdf_link = serializers.SerializerMethodField()
     class Meta:
         model = Result
         fields = [
@@ -16,7 +17,9 @@ class ResultSerializer(serializers.ModelSerializer):
             'pdf',
             'security_alerts',
             'alerts_detail',
-            'alerts_summary'
+            'alerts_summary',
+            'num_tests',
+            'pdf_link'
         ]
         read_only_fields = ['logs', 'progress', 'security_alerts', 'alerts_detail']
     
@@ -27,6 +30,13 @@ class ResultSerializer(serializers.ModelSerializer):
             "counts": counts,
             "total": total
         }
+    
+    # TODO: to be determined based on how the pdf is stored
+    def get_pdf_link(self, obj):
+        if obj.pdf:
+            return str(obj.pdf)
+        else:
+            return None
 
     def validate_ticket(self, ticket):
         request = self.context.get("request")
