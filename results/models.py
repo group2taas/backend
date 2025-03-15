@@ -37,12 +37,14 @@ class Result(models.Model):
         blank=True,
         null=True,
         validators=[FileExtensionValidator(allowed_extensions=["md"])],
+        storage=gd_storage,
     )
     pdf = models.FileField(
         upload_to=upload_to,
         blank=True,
         null=True,
         validators=[FileExtensionValidator(allowed_extensions=["pdf"])],
+        storage=gd_storage,
     )
 
     def add_log(self, test_log):
