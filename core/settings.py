@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "gdstorage",
     "rest_framework",
     "rest_framework_simplejwt",
     "channels",
@@ -202,6 +203,15 @@ STATIC_URL = "static/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+#
+# Google Drive Storage Settings
+#
+
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
+    BASE_DIR, "core/gdstorage_config.json"
+)
+# GOOGLE_DRIVE_STORAGE_MEDIA_ROOT = '<base google drive path for file uploads>'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -228,10 +238,9 @@ class LoguruHandler(logging.Handler):
         try:
             level = logger.level(record.levelname).name
         except KeyError:
-            level = record.levelno  
+            level = record.levelno
 
         logger.log(level, record.getMessage())
-
 
 
 LOGGING = {

@@ -177,6 +177,7 @@ kafka/
 
 package-lock.json
 firebase_config.json
+gdstorage_config.json
 **/migrations/*.py
 !**/migrations/__init__.py
 requirements_copy.txt
