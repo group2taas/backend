@@ -4,7 +4,7 @@ import os
 import json
 from loguru import logger
 from agents.base.model_handler import AIModelHandler
-from .prompts import TEST_CASE_GENERATION_PROMPT, PYTHON_SAMPLE_CODE
+from .prompts import TEST_CASE_GENERATION_PROMPT
 from tickets.models import Ticket
 from results.models import Result
 from asgiref.sync import sync_to_async
@@ -24,7 +24,6 @@ class TestingAgent:
         cleaned_line = line.decode().strip()
         logger.info(f"Subprocess output: {cleaned_line}")
         channel_layer = get_channel_layer()
-        print(cleaned_line)
         await channel_layer.group_send(
             self.group_name,
             {
@@ -107,9 +106,11 @@ class TestingAgent:
         try:
             test_cases = self.generate_test_cases_from_code(code)
 
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as tmp_file:
-                # tmp_file.write(code)
-                tmp_file.write(PYTHON_SAMPLE_CODE)
+            with tempfile.NamedTemporaryFile(
+                mode='w', suffix='.py', delete=False
+            ) as tmp_file:
+                tmp_file.write(code)
+                
 
                 tmp_file_path = tmp_file.name
 
@@ -128,7 +129,6 @@ class TestingAgent:
                     return -1
 
             async def run_subprocess():
-
                 sub_process = await asyncio.create_subprocess_exec(
                     "python",
                     "-u",

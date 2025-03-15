@@ -14,13 +14,3 @@ Interview Answers:
 {testing_codebase}
 """
 )
-
-PYTHON_SAMPLE_CODE="""
-from time import sleep
-for i in range(5):
-    print(f'{{"target_url": "https://www.instagram.com", "security_alerts": {{"High": 0, "Medium": 13, "Low": 58, "Informational": 42}}, "test_case": "test_case_{i}", "result": "Passed"}}')
-    sleep(10)
-for i in range(5,10):
-    print(f'{{"target_url": "https://www.instagram.com", "security_alerts": {{"High": 0, "Medium": 13, "Low": 58, "Informational": 42}}, "test_case": "test_case_{i}", "result": "Failed"}}')
-    sleep(10)
-"""
