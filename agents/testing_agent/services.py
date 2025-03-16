@@ -16,7 +16,7 @@ class TestingAgent:
         self.ticket_id = ticket_id
         self.ticket_obj = Ticket.objects.filter(id=ticket_id)
         self.result_obj, _ = Result.objects.update_or_create(
-            ticket_id=ticket_id, defaults={"num_tests": num_test_cases}
+            ticket_id=ticket_id, defaults={"num_tests": num_test_cases, "title": f"security_test_{ticket_id}"}
         )
         self.group_name = f"test_status_{ticket_id}"
 
@@ -34,7 +34,9 @@ class TestingAgent:
 
         try:
             json_data = json.loads(cleaned_line)
-            await sync_to_async(self.result_obj.add_log)(json_data)
+            # await sync_to_async(self.result_obj.add_log)(json_data)
+            updated_result = await sync_to_async(self.result_obj.add_log)(json_data)
+            self.result_obj = updated_result
             if json_data.get("type") == "result":
                 await sync_to_async(self.result_obj.update_test_results)(json_data)
 
@@ -48,9 +50,20 @@ class TestingAgent:
 
         except json.JSONDecodeError:
             logger.error(f"Invalid JSON output: {cleaned_line}")
-            await sync_to_async(self.result_obj.add_log)(
-                {"type": "log", "message": cleaned_line}
-            )
+            if "Ran" in cleaned_line and "tests in" in cleaned_line:
+                await sync_to_async(self.result_obj.add_log)(
+                    {
+                        "type": "result",
+                        "test_case": "Test Summary",
+                        "result": cleaned_line,
+                        "security_alerts": {"High": 0, "Medium": 0, "Low": 0, "Informational": 0},
+                        "alert_details": []
+                    }
+                )
+            else:
+                await sync_to_async(self.result_obj.add_log)(
+                    {"type": "log", "message": cleaned_line}
+                )
 
     async def read_output(self, stream, callback):
         while True:

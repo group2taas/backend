@@ -34,7 +34,7 @@ class ResultSerializer(serializers.ModelSerializer):
     # TODO: to be determined based on how the pdf is stored
     def get_pdf_link(self, obj):
         if obj.pdf:
-            return str(obj.pdf)
+            return str(obj.pdf.url)
         else:
             return None
 

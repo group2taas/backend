@@ -36,3 +36,4 @@ selenium==4.29.0
 setuptools==75.8.0
 unstructured==0.16.20
 zaproxy==0.4.0
+pyOpenSSL==22.1.0

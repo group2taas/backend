@@ -16,7 +16,7 @@ gd_storage = GoogleDriveStorage()
 def upload_to(instance, filename):
     return os.path.join(
         "results",
-        str(instance.user.pk),
+        str(instance.ticket.user.pk),
         str(instance.ticket.pk),
         str(instance.pk),
         filename,
@@ -53,6 +53,7 @@ class Result(models.Model):
             result.logs.append(test_log)
             result.progress = len(result.logs)
             result.save(update_fields=["logs", "progress"])
+            return result
 
     def update_test_results(self, result_data):
         with transaction.atomic():
@@ -69,6 +70,7 @@ class Result(models.Model):
     def generate_markdown(self):
 
         md = f"# OWASP Security Test Summary\n\n"
+        has_content = False
 
         for idx, log in enumerate(self.logs, start=1):
             log_type = log.get("type", "")
@@ -78,6 +80,7 @@ class Result(models.Model):
                 message = log.get("message", "")
                 md += f"## {idx}. {test_case} \n"
                 md += f"{message}"
+                has_content = True
 
             elif log_type == "result":
                 target_url = log.get("target_url", "Unknown URL")
@@ -87,7 +90,8 @@ class Result(models.Model):
                 result = log.get("result", "No result")
 
                 md += f"## {idx}. {test_case} \n"
-                md += f"**Target URL:** `{target_url}`\n\n"
+                if "target_url" in log:
+                    md += f"**Target URL:** `{target_url}`\n\n"
 
                 md += "### Security Alert Summary\n"
                 md += f"- **High Alerts:** {severity_counts['High']}\n"
@@ -95,14 +99,24 @@ class Result(models.Model):
                 md += f"- **Low Alerts:** {severity_counts['Low']}\n"
                 md += f"- **Informational Alerts:** {severity_counts['Informational']}\n\n"
 
-                md += "### Alert Details\n"
                 if alert_details:
+                    md += "### Alert Details\n"
                     for alert in alert_details:
-                        md += f"- {alert}\n"
-                md += "\n"
+                        if isinstance(alert, dict):
+                            md += f"- **{alert.get('name', 'Unknown')}** ({alert.get('risk', 'Unknown Risk')}): {alert.get('description', '')}\n"
+                        else:
+                            md += f"- {alert}\n"
+                    md += "\n"
 
                 md += "### Other Result\n"
                 md += f"{result}\n\n"
+                has_content = True
+            elif log_type == "log":
+                message = log.get("message", "")
+                if message and not message.isspace():
+                    md += f"## {idx}. Log Entry \n"
+                    md += f"```\n{message}\n```\n\n"
+                    has_content = True
 
             else:
                 logger.info(f"Skipping this log: {log}")
@@ -110,6 +124,10 @@ class Result(models.Model):
 
             # page break
             md += "\f\n\n"
+
+        if not has_content:
+            md += "## No valid test results were found\n\n"
+            md += "The test may have completed, but no structured results were captured.\n"
 
         return md
 
@@ -124,19 +142,31 @@ class Result(models.Model):
     def save_overall_test_results(self):
         if self.logs:
             markdown_content = self.generate_markdown()
-            md_filename = f"{self.title}_results.md"
+            md_filename = f"results_{self.ticket.id}.md" if not self.title else f"{self.title}_results.md"
+            logger.info(f"Saving markdown file as: {md_filename}")
+            
             md_file = ContentFile(markdown_content.encode("utf-8"))
             self.markdown.save(md_filename, md_file, save=False)
-
-            pdf_tmppath = self.md2pdf(markdown_content)
-            pdf_filename = f"{self.title}_results.pdf"
-            with open(pdf_tmppath, "rb") as f:
-                pdf_file = File(f)
-                self.pdf.save(pdf_filename, pdf_file, save=False)
-
-            os.remove(pdf_tmppath)
-
+            logger.info(f"Markdown file saved")
+            
+            try:
+                pdf_tmppath = self.md2pdf(markdown_content)
+                pdf_filename = f"results_{self.ticket.id}.pdf" if not self.title else f"{self.title}_results.pdf"
+                logger.info(f"Saving PDF file as: {pdf_filename}")
+                
+                with open(pdf_tmppath, "rb") as f:
+                    pdf_file = File(f)
+                    self.pdf.save(pdf_filename, pdf_file, save=False)
+                
+                os.remove(pdf_tmppath)
+                logger.info(f"PDF file saved and temp file removed")
+            except Exception as e:
+                logger.error(f"Error generating PDF: {e}")
+        else:
+            logger.warning("No logs found, skipping markdown and PDF generation")
+        
         self.save(update_fields=["markdown", "pdf"])
+        logger.info("Result model saved with updated fields")
 
     def get_alert_counts(self):
         """Returns alert counts by severity"""
