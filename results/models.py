@@ -123,20 +123,36 @@ class Result(models.Model):
 
     def save_overall_test_results(self):
         if self.logs:
-            markdown_content = self.generate_markdown()
-            md_filename = f"{self.title}_results.md"
-            md_file = ContentFile(markdown_content.encode("utf-8"))
-            self.markdown.save(md_filename, md_file, save=False)
+            try:
+                markdown_content = self.generate_markdown()
+            except Exception as e:
+                logger.info(f"Failed to generate markdown. {e}")
+                return
 
-            pdf_tmppath = self.md2pdf(markdown_content)
-            pdf_filename = f"{self.title}_results.pdf"
-            with open(pdf_tmppath, "rb") as f:
-                pdf_file = File(f)
-                self.pdf.save(pdf_filename, pdf_file, save=False)
+            try:
+                pdf_tmppath = self.md2pdf(markdown_content)
+            except Exception as e:
+                logger.info("Failed to generate PDF. {e}")
+                return
 
-            os.remove(pdf_tmppath)
+            try:
+                md_filename = f"{self.title}_results.md"
+                md_file = ContentFile(markdown_content.encode("utf-8"))
+                self.markdown.save(md_filename, md_file, save=False)
 
-        self.save(update_fields=["markdown", "pdf"])
+                pdf_filename = f"{self.title}_results.pdf"
+                with open(pdf_tmppath, "rb") as f:
+                    pdf_file = File(f)
+                    self.pdf.save(pdf_filename, pdf_file, save=False)
+
+                os.remove(pdf_tmppath)
+
+                self.save(update_fields=["markdown", "pdf"])
+                logger.info("Markdown and PDF files saved successfully.")
+
+            except Exception as e:
+                logger.info(f"Failed to save markdown/pdf files. {e}")
+                return
 
     def get_alert_counts(self):
         """Returns alert counts by severity"""
