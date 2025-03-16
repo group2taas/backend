@@ -98,6 +98,7 @@ services:
       -config api.addrs.addr.name=.* 
       -config api.addrs.addr.regex=true
       -config api.key=
+    # INSERT ZAP API KEY UNDER config api.key
     ports:
       - "8080:8080"  
       - "8090:8090"
