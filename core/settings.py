@@ -101,7 +101,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -109,6 +109,7 @@ ROOT_URLCONF = "core.urls"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
+X_FRAME_OPTIONS = 'ALLOWALL'
 
 CORS_ALLOW_HEADERS = [
     "authorization",
@@ -117,10 +118,12 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, 'core/templates')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -146,6 +149,17 @@ DATABASES = {
         "CLIENT": {
             "host": f"mongodb+srv://capstonetaas:{MONGODB_PASSWORD}@taas.qmkdn.mongodb.net/?retryWrites=true&w=majority&appName=taas",
             "ssl": True,
+        },
+        "ENFORCE_SCHEMA": False,
+        "LOGGING": {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "loggers": {
+                "djongo": {
+                    "level": "DEBUG",
+                    "propagate": False,
+                }
+            },
         },
     }
 }

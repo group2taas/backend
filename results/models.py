@@ -179,3 +179,10 @@ class Result(models.Model):
 
     def __str__(self):
         return self.title
+        
+    def get_embeddable_pdf_url(self):
+
+        if self.pdf:
+            pdf_filename = os.path.basename(self.pdf.name)
+            return f"/api/results/embed-pdf/{self.id}/{pdf_filename}/"
+        return None

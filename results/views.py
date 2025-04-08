@@ -7,7 +7,9 @@ from rest_framework import viewsets, status
 from .models import Result
 from .serializers import ResultSerializer
 
-from django.http import FileResponse
+from django.http import FileResponse, Http404
+import mimetypes
+import os
 
 
 # TODO: abstract the following into a custom BasePermission class (same for other views)
@@ -67,3 +69,27 @@ class TicketResultView(APIView):
         _check_user_permission(request, result)
         serializer = ResultSerializer(result, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class EmbedPDFView(APIView):
+    def get(self, request, result_id, filename):
+        try:
+            result = get_object_or_404(Result, pk=result_id)
+            
+            if not result.pdf or os.path.basename(result.pdf.name) != filename:
+                raise Http404("PDF not found")
+            
+            file_obj = result.pdf.file
+            
+            response = FileResponse(file_obj)
+            
+            # Set headers to force display in browser
+            response['Content-Type'] = 'application/pdf'
+            response['Content-Disposition'] = 'inline; filename="{}"'.format(filename)
+            
+            response['Cache-Control'] = 'public, max-age=86400'
+            
+            return response
+            
+        except Exception as e:
+            raise Http404(f"Error serving PDF: {str(e)}")

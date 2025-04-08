@@ -5,6 +5,8 @@ from .models import Result
 class ResultSerializer(serializers.ModelSerializer):
     alerts_summary = serializers.SerializerMethodField()
     pdf_link = serializers.SerializerMethodField()
+    embeddable_pdf_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = Result
         fields = [
@@ -19,7 +21,8 @@ class ResultSerializer(serializers.ModelSerializer):
             'alerts_detail',
             'alerts_summary',
             'num_tests',
-            'pdf_link'
+            'pdf_link',
+            'embeddable_pdf_url'
         ]
         read_only_fields = ['logs', 'progress', 'security_alerts', 'alerts_detail']
     
@@ -31,12 +34,17 @@ class ResultSerializer(serializers.ModelSerializer):
             "total": total
         }
     
-    # TODO: to be determined based on how the pdf is stored
     def get_pdf_link(self, obj):
         if obj.pdf:
             return str(obj.pdf.url)
         else:
             return None
+            
+    def get_embeddable_pdf_url(self, obj):
+        request = self.context.get('request')
+        if obj.pdf and request:
+            return request.build_absolute_uri(obj.get_embeddable_pdf_url())
+        return None
 
     def validate_ticket(self, ticket):
         request = self.context.get("request")

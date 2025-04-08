@@ -1,0 +1,36 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; {% trans 'Server Error' %}
+</div>
+{% endblock %}
+
+{% block title %}{% trans 'Server Error (500)' %}{% endblock %}
+
+{% block content %}
+<h1>{% trans 'Server Error (500)' %}</h1>
+
+<div id="content-main">
+  <div style="padding: 20px; border: 1px solid #ddd; margin-top: 20px; border-radius: 4px; background-color: #f9f9f9;">
+    <h2>Debug Information</h2>
+    <p>This error occurred because Django is connecting to MongoDB using Djongo, which has some compatibility issues with the Django admin interface when DEBUG=True.</p>
+    
+    <h3>Possible Solutions:</h3>
+    <ol>
+      <li>Set DEBUG=False in core/settings.py (not recommended for development)</li>
+      <li>Modify your admin.py files to be more compatible with MongoDB/Djongo:
+        <ul>
+          <li>Remove or modify annotations in get_queryset methods</li>
+          <li>Add try/except blocks for better error handling</li>
+        </ul>
+      </li>
+      <li>Check the database connection and schema</li>
+    </ol>
+    
+    <p><strong>Please check the terminal/logs for the specific error details.</strong></p>
+  </div>
+</div>
+{% endblock %}

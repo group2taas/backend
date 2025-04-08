@@ -1,0 +1,269 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+<style>
+  .card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  .card-header {
+    padding: 0.75rem 1.25rem;
+    background-color: #79aec8;
+    color: white;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: bold;
+  }
+  
+  .card-body {
+    padding: 1.25rem;
+  }
+  
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+  }
+  
+  .col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding-right: 15px;
+    padding-left: 15px;
+    box-sizing: border-box;
+  }
+  
+  .stats-box {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stats-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #417690;
+  }
+  
+  .stats-label {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: #6c757d;
+  }
+  
+  .alert-high {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .alert-medium {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .alert-low {
+    background-color: #d1ecf1;
+    color: #0c5460;
+  }
+  
+  .alert-info {
+    background-color: #d6d8d9;
+    color: #1b1e21;
+  }
+
+  .ticket-status {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.875em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    margin-right: 5px;
+  }
+
+  .status-new {
+    background-color: #cfe2ff;
+    color: #084298;
+  }
+
+  .status-testing {
+    background-color: #fff3cd;
+    color: #664d03;
+  }
+
+  .status-completed {
+    background-color: #d1e7dd;
+    color: #0f5132;
+  }
+
+  table.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  table.dashboard-table th,
+  table.dashboard-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  table.dashboard-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+
+  table.dashboard-table tr:hover {
+    background-color: #f5f5f5;
+  }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  &rsaquo; Dashboard
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <h1>Security Testing Dashboard</h1>
+  
+  <!-- Overview Statistics -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">Tickets Overview</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="stats-box">
+                <div class="stats-number">{{ total_tickets }}</div>
+                <div class="stats-label">Total Tickets</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="stats-box">
+                <div class="stats-number">{{ interview_count }}</div>
+                <div class="stats-label">Interviews</div>
+              </div>
+            </div>
+          </div>
+          
+          <h4>Ticket Status Distribution</h4>
+          <table class="dashboard-table">
+            <tr>
+              <th>Status</th>
+              <th>Count</th>
+            </tr>
+            {% for status in ticket_status %}
+            <tr>
+              <td>
+                <span class="ticket-status status-{{ status.status }}">
+                  {{ status.status|title }}
+                </span>
+              </td>
+              <td>{{ status.count }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">User Statistics</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="stats-box">
+                <div class="stats-number">{{ total_users }}</div>
+                <div class="stats-label">Total Users</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="stats-box">
+                <div class="stats-number">{{ answers_count }}</div>
+                <div class="stats-label">Total Answers</div>
+              </div>
+            </div>
+          </div>
+          
+          <h4>Top Users by Tickets</h4>
+          <table class="dashboard-table">
+            <tr>
+              <th>User</th>
+              <th>Tickets</th>
+            </tr>
+            {% for user in users_with_tickets|slice:":5" %}
+            <tr>
+              <td>{{ user.name }}</td>
+              <td>{{ user.ticket_count }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Security Alert Statistics -->
+  <div class="card">
+    <div class="card-header">Security Alerts Summary</div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="stats-box">
+            <div class="stats-number">{{ results_count }}</div>
+            <div class="stats-label">Total Test Results</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="stats-box alert-high">
+                <div class="stats-number">{{ high_alerts }}</div>
+                <div class="stats-label">High Alerts</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="stats-box alert-medium">
+                <div class="stats-number">{{ medium_alerts }}</div>
+                <div class="stats-label">Medium Alerts</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="stats-box alert-low">
+                <div class="stats-number">{{ low_alerts }}</div>
+                <div class="stats-label">Low Alerts</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="stats-box alert-info">
+                <div class="stats-number">{{ info_alerts }}</div>
+                <div class="stats-label">Info Alerts</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <a href="{% url 'admin:index' %}" class="button">Return to Admin Home</a>
+</div>
+{% endblock %}
