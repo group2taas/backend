@@ -51,7 +51,7 @@ class Result(models.Model):
         with transaction.atomic():
             result = Result.objects.select_for_update().get(id=self.id)
             result.logs.append(test_log)
-            result.progress = len(result.logs)
+            result.progress = sum(1 for log in result.logs if log.get('type') == 'result')
             result.save(update_fields=["logs", "progress"])
             return result
 
